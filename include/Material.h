@@ -15,6 +15,9 @@ public:
     void setFloat(const char* name, float value) const;
     void setBool(const char* name, bool value) const;
 
+    
+    void setMat4(const char* name, const float* value) const;
+
 private:
     GLuint program;
 

@@ -85,3 +85,13 @@ void Material::setFloat(const char* name, float value) const {
 void Material::setBool(const char* name, bool value) const {
     glUniform1i(glGetUniformLocation(program, name), value ? 1 : 0);
 }
+
+// ✅ NUEVO: ENVÍO DE MATRIZ 4x4 AL SHADER
+void Material::setMat4(const char* name, const float* value) const {
+    glUniformMatrix4fv(
+        glGetUniformLocation(program, name),
+        1,
+        GL_FALSE,
+        value
+    );
+}
