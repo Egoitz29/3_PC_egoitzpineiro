@@ -248,7 +248,7 @@ void App::mainLoop() {
         glfwPollEvents();
     }
 }
-
+    
 
 // ===============================
 // CLEANUP
