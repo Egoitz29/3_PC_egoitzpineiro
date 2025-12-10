@@ -1,4 +1,5 @@
 ﻿#include "App.h"
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -7,76 +8,75 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include "stb_image.h"
 
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 // ===============================
-// VARIABLES CÁMARA
-// ===============================
-glm::vec3 cameraPos = glm::vec3(10.0f, 10.0f, 10.0f);
-glm::vec3 cameraFront = glm::vec3(-1.0f, -1.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-float cameraSpeed = 10.0f;
-float yaw = -135.0f;
-float pitch = -30.0f;
-float lastX = 400, lastY = 300;
-float sensitivity = 0.1f;
-bool firstMouse = true;
-
-// ===============================
-// CALLBACK RATÓN
+// CALLBACK RATÓN (FPS REAL)
 // ===============================
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
     if (!app) return;
 
-    if (firstMouse)
+    if (app->firstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+        app->lastX = (float)xpos;
+        app->lastY = (float)ypos;
+        app->firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
+    float xoffset = (float)xpos - app->lastX;
+    float yoffset = app->lastY - (float)ypos;
 
-    lastX = xpos;
-    lastY = ypos;
+    app->lastX = (float)xpos;
+    app->lastY = (float)ypos;
 
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+    xoffset *= app->sensitivity;
+    yoffset *= app->sensitivity;
 
-    yaw += xoffset;
-    pitch += yoffset;
+    app->yaw += xoffset;
+    app->pitch += yoffset;
 
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
+    if (app->pitch > 89.0f)  app->pitch = 89.0f;
+    if (app->pitch < -89.0f) app->pitch = -89.0f;
 
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(app->yaw)) * cos(glm::radians(app->pitch));
+    direction.y = sin(glm::radians(app->pitch));
+    direction.z = sin(glm::radians(app->yaw)) * cos(glm::radians(app->pitch));
+
+    app->cameraFront = glm::normalize(direction);
 }
 
 // ===============================
 // CONSTRUCTOR / DESTRUCTOR
 // ===============================
-App::App() { init(); }
+App::App()
+{
+    cameraPos = glm::vec3(10.0f, 10.0f, 10.0f);
+    cameraFront = glm::vec3(-1.0f, -1.0f, -1.0f);
+    cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    yaw = -135.0f;
+    pitch = -30.0f;
+
+    lastX = 400.0f;
+    lastY = 300.0f;
+    firstMouse = true;
+
+    sensitivity = 0.1f;
+    cameraSpeed = 10.0f;
+
+    init();
+}
+
 App::~App() { cleanup(); }
 
 // ===============================
 // INIT
 // ===============================
-void App::init() {
-
+void App::init()
+{
     if (!glfwInit()) {
         std::cerr << "Error iniciando GLFW\n";
         std::exit(-1);
@@ -88,7 +88,7 @@ void App::init() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(800, 600, "Figuras OpenGL", nullptr, nullptr);
+    window = glfwCreateWindow(800, 600, "Terreno OpenGL", nullptr, nullptr);
     if (!window) {
         std::cerr << "Error creando ventana\n";
         glfwTerminate();
@@ -97,6 +97,7 @@ void App::init() {
 
     glfwMakeContextCurrent(window);
 
+    // Activar ratón FPS
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(window, this);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -113,8 +114,6 @@ void App::init() {
     materialBasic.load("../shaders/basic.vs", "../shaders/basic.fs");
     materialTerrain.load("../shaders/terrain.vs", "../shaders/terrain.fs");
 
-
-
     // TEXTURAS
     textureStone.load("../textures/TexturePiedra.jpg");
     textureTrunk.load("../textures/TextureTronco.jpg");
@@ -128,7 +127,7 @@ void App::init() {
 }
 
 // ===============================
-// INPUT TECLADO
+// INPUT TECLADO (WASD)
 // ===============================
 void App::processInput(float deltaTime)
 {
@@ -145,6 +144,17 @@ void App::processInput(float deltaTime)
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * velocity;
+    // ====== TOGGLE WIREFRAME ======
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
 }
 
 // ===============================
@@ -155,13 +165,13 @@ void App::run() { mainLoop(); }
 // ===============================
 // MAIN LOOP
 // ===============================
-void App::mainLoop() {
-
+void App::mainLoop()
+{
     float lastFrame = 0.0f;
 
-    while (!glfwWindowShouldClose(window)) {
-
-        float currentFrame = glfwGetTime();
+    while (!glfwWindowShouldClose(window))
+    {
+        float currentFrame = (float)glfwGetTime();
         float deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -170,15 +180,15 @@ void App::mainLoop() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // ============================
-        // MODO TERRENO 3D
-        // ============================
-        if (renderTerrain) {
-
+        // ===== TERRENO 3D =====
+        if (renderTerrain)
+        {
             materialTerrain.use();
 
-            glm::mat4 model = glm::mat4(1.0f);
+            materialTerrain.setVec3("lightDir", glm::vec3(-0.3f, -1.0f, -0.2f));
+            materialTerrain.setVec3("viewPos", cameraPos);
 
+            glm::mat4 model = glm::mat4(1.0f);
             glm::mat4 view = glm::lookAt(
                 cameraPos,
                 cameraPos + cameraFront,
@@ -192,69 +202,24 @@ void App::mainLoop() {
                 1000.0f
             );
 
-            materialTerrain.setMat4("model", glm::value_ptr(model));
-            materialTerrain.setMat4("view", glm::value_ptr(view));
-            materialTerrain.setMat4("projection", glm::value_ptr(projection));
+            materialTerrain.setMat4("model", model);
+            materialTerrain.setMat4("view", view);
+            materialTerrain.setMat4("projection", projection);
 
-            // Si lo quieres sólido:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+           
             terrain.Draw();
-
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-            continue;
         }
-
-        // ============================
-        // MODO 2D
-        // ============================
-        materialBasic.use();
-
-        float time = glfwGetTime();
-        float angle = time * 0.4f;
-        float mixFactor = 0.5f;
-
-        // CUADRADO GRANDE
-        materialBasic.setBool("useTexture", true);
-        materialBasic.setBool("useDoubleTexture", false);
-        materialBasic.setFloat("rotation", angle);
-
-        textureStone.bind(0);
-        materialBasic.setInt("tex1", 0);
-        geomSquare.draw();
-
-        // TRIÁNGULO + CÍRCULO
-        materialBasic.setBool("useTexture", false);
-        materialBasic.setBool("useDoubleTexture", false);
-        materialBasic.setFloat("rotation", 0.0f);
-
-        geomTriangle.draw();
-        geomCircle.draw();
-
-        // CUADRADO PEQUEÑO
-        materialBasic.setBool("useTexture", true);
-        materialBasic.setBool("useDoubleTexture", true);
-        materialBasic.setFloat("mixFactor", mixFactor);
-
-        textureStone.bind(0);
-        textureTrunk.bind(1);
-
-        materialBasic.setInt("tex1", 0);
-        materialBasic.setInt("tex2", 1);
-        geomSmallSquare.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 }
-    
 
 // ===============================
 // CLEANUP
 // ===============================
-void App::cleanup() {
-
+void App::cleanup()
+{
     geomSquare.cleanup();
     geomTriangle.cleanup();
     geomCircle.cleanup();

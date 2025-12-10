@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
+
 
 Material::Material() : program(0) {}
 
@@ -86,12 +88,23 @@ void Material::setBool(const char* name, bool value) const {
     glUniform1i(glGetUniformLocation(program, name), value ? 1 : 0);
 }
 
-// ✅ NUEVO: ENVÍO DE MATRIZ 4x4 AL SHADER
-void Material::setMat4(const char* name, const float* value) const {
+//  NUEVO: ENVÍO DE MATRIZ 4x4 AL SHADER
+void Material::setMat4(const std::string& name, const glm::mat4& mat) const
+{
     glUniformMatrix4fv(
-        glGetUniformLocation(program, name),
+        glGetUniformLocation(program, name.c_str()),
         1,
         GL_FALSE,
-        value
+        glm::value_ptr(mat)
+    );
+}
+
+
+void Material::setVec3(const std::string& name, const glm::vec3& value)
+{
+    glUniform3fv(
+        glGetUniformLocation(program, name.c_str()),
+        1,
+        &value[0]
     );
 }

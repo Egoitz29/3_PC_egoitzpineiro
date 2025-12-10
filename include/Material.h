@@ -1,6 +1,10 @@
 ﻿#pragma once
+
 #include <glad/glad.h>
 #include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 class Material {
 public:
@@ -15,8 +19,12 @@ public:
     void setFloat(const char* name, float value) const;
     void setBool(const char* name, bool value) const;
 
-    
-    void setMat4(const char* name, const float* value) const;
+    //  MATRIZ 4x4
+    void setMat4(const std::string& name, const glm::mat4& mat) const;
+
+
+    void setVec3(const std::string& name, const glm::vec3& value);
+
 
 private:
     GLuint program;
