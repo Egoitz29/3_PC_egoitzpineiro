@@ -37,6 +37,8 @@ private:
     // ==== RENDER ====
     Material materialBasic;
     Material materialTerrain;
+    Material materialWater;
+
 
     Texture textureStone;
     Texture textureTrunk;
@@ -45,6 +47,8 @@ private:
     Geometry geomTriangle;
     Geometry geomCircle;
     Geometry geomSmallSquare;
+    Geometry geomWater;
+
 
     int circleVertexCount = 0;
 

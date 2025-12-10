@@ -5,12 +5,18 @@ in vec3 Normal;
 in float height;
 
 out vec4 FragColor;
+uniform bool isWater;
+
 
 uniform vec3 lightDir;   // dirección de la luz
 uniform vec3 viewPos;    // posición de la cámara
 
+
 void main()
 {
+
+
+
     // =========================
     // 1. COLOR POR ALTURA (TU SISTEMA)
     // =========================

@@ -20,7 +20,8 @@ public:
     void setBool(const char* name, bool value) const;
 
     //  MATRIZ 4x4
-    void setMat4(const std::string& name, const glm::mat4& mat) const;
+    void setMat4(const char* name, const glm::mat4& value) const;
+
 
 
     void setVec3(const std::string& name, const glm::vec3& value);

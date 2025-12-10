@@ -88,16 +88,17 @@ void Material::setBool(const char* name, bool value) const {
     glUniform1i(glGetUniformLocation(program, name), value ? 1 : 0);
 }
 
-//  NUEVO: ENVÍO DE MATRIZ 4x4 AL SHADER
-void Material::setMat4(const std::string& name, const glm::mat4& mat) const
+void Material::setMat4(const char* name, const glm::mat4& value) const
 {
     glUniformMatrix4fv(
-        glGetUniformLocation(program, name.c_str()),
+        glGetUniformLocation(program, name),
         1,
         GL_FALSE,
-        glm::value_ptr(mat)
+        glm::value_ptr(value)
     );
 }
+
+
 
 
 void Material::setVec3(const std::string& name, const glm::vec3& value)

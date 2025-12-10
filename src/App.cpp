@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -118,12 +117,42 @@ void App::init()
     textureStone.load("../textures/TexturePiedra.jpg");
     textureTrunk.load("../textures/TextureTronco.jpg");
 
+    materialWater.load("../shaders/water.vs", "../shaders/water.fs");
+
     // TERRENO
     if (!heightmap.Load("../textures/heightmap.png", 125.0f)) {
         std::cerr << "ERROR: No se pudo cargar el heightmap\n";
     }
 
     terrain.BuildFromHeightmap(heightmap);
+
+    // =============================
+// PLANO DE AGUA
+// =============================
+    float waterVertices[] = {
+        // POSICIÓN           // COLOR       // UV
+        -1.0f, 0.0f, -1.0f,    0.0f,0.3f,0.6f,  0.0f,0.0f,
+         1.0f, 0.0f, -1.0f,    0.0f,0.3f,0.6f,  1.0f,0.0f,
+         1.0f, 0.0f,  1.0f,    0.0f,0.3f,0.6f,  1.0f,1.0f,
+        -1.0f, 0.0f,  1.0f,    0.0f,0.3f,0.6f,  0.0f,1.0f
+    };
+
+    unsigned int waterIndices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    geomWater.initWithIndices(
+        waterVertices,
+        sizeof(waterVertices),
+        waterIndices,
+        6,
+        8 * sizeof(float),
+        (void*)0,
+        (void*)(3 * sizeof(float)),
+        (void*)(6 * sizeof(float))
+    );
+
 }
 
 // ===============================
@@ -180,6 +209,13 @@ void App::mainLoop()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 waterModel = glm::mat4(1.0f);
+        float seaLevel = 0.15f;
+
+        waterModel = glm::translate(waterModel, glm::vec3(0.0f, seaLevel, 0.0f));
+        waterModel = glm::scale(waterModel, glm::vec3(50.0f, 1.0f, 50.0f));
+
+
         // ===== TERRENO 3D =====
         if (renderTerrain)
         {
@@ -206,8 +242,37 @@ void App::mainLoop()
             materialTerrain.setMat4("view", view);
             materialTerrain.setMat4("projection", projection);
 
+
            
+            materialTerrain.setBool("isWater", false);
             terrain.Draw();
+
+
+            materialTerrain.use();
+
+            // TERRENO
+            materialTerrain.use();
+            materialTerrain.setMat4("model", model);
+            materialTerrain.setMat4("view", view);
+            materialTerrain.setMat4("projection", projection);
+            terrain.Draw();
+
+            // AGUA
+            materialWater.use();
+            materialWater.setMat4("model", waterModel);
+            materialWater.setMat4("view", view);
+            materialWater.setMat4("projection", projection);
+            geomSquare.draw();
+
+
+
+
+
+            // Color plano azul sin iluminación
+            glDisable(GL_CULL_FACE);
+            geomWater.draw();
+            glEnable(GL_CULL_FACE);
+
         }
 
         glfwSwapBuffers(window);
