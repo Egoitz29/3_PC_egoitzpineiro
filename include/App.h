@@ -2,7 +2,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <string>
+#include <vector>
 
 #include <glm/glm.hpp>
 
@@ -11,6 +13,19 @@
 #include "Texture.h"
 #include "Terrain.h"
 #include "HeightmapLoader.h"
+#include "TinyModel.h"
+
+
+
+// ===============================
+// ESTRUCTURA ÁRBOLES
+// ===============================
+struct TreeInstance
+{
+    glm::vec3 position;
+    float rotationY;
+    float scale;
+};
 
 class App {
 public:
@@ -38,6 +53,9 @@ private:
     Material materialBasic;
     Material materialTerrain;
     Material materialWater;
+    Material materialTree;
+    unsigned int grassTexture;
+    unsigned int rockTexture;
 
 
     Texture textureStone;
@@ -48,6 +66,8 @@ private:
     Geometry geomCircle;
     Geometry geomSmallSquare;
     Geometry geomWater;
+    Geometry geomTrunk;
+    Geometry geomLeaves;
 
 
     int circleVertexCount = 0;
@@ -57,12 +77,18 @@ private:
     Heightmap heightmap;
     bool renderTerrain = true;
 
+    // ==== ÁRBOLES ====
+    std::vector<TreeInstance> trees;
+
+    // ==== CÁMARA ====
     float cameraSpeed;
+
+    TinyModel* treeModel = nullptr;
+
 
 private:
     void init();
     void processInput(float deltaTime);
-
     void mainLoop();
     void cleanup();
 };

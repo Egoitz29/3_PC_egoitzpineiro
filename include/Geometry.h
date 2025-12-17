@@ -8,7 +8,7 @@ public:
     ~Geometry();
 
     // Para geometrías con índices (cuadrados)
-    void initWithIndices(const float* vertexData,
+        void initWithIndices(const float* vertexData,
         unsigned int vertexDataSize,
         const unsigned int* indexData,
         unsigned int indexCount,

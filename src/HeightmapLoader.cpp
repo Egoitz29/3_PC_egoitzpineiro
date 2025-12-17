@@ -25,3 +25,21 @@ bool Heightmap::Load(const std::string& path, float maxHeight)
     stbi_image_free(data);
     return true;
 }
+
+float Heightmap::GetHeightAt(float worldX, float worldZ) const
+{
+    // Convertir coordenadas mundo → coordenadas del heightmap
+    float halfW = width * 0.5f;
+    float halfH = height * 0.5f;
+
+    int x = static_cast<int>(worldX + halfW);
+    int z = static_cast<int>(worldZ + halfH);
+
+
+    // Clamp para no salir del mapa
+    x = std::max(0, std::min(x, width - 1));
+    z = std::max(0, std::min(z, height - 1));
+
+    return heights[z * width + x];
+}
+
