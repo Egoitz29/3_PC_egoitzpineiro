@@ -102,7 +102,7 @@ App::App()
     firstMouse = true;
 
     sensitivity = 0.1f;
-    cameraSpeed = 15.0f;
+    cameraSpeed = 30.0f;
 
     init();
 }
@@ -167,25 +167,29 @@ void App::init()
 
     // ===== ÁRBOLES EN ANILLO =====
     trees.clear();
-    glm::vec3 islandCenter(5.0f, 0.0f, 5.0f);
+    glm::vec3 islandCenter(0.0f, 0.0f, 0.0f);
     glm::vec3 dayColor(0.82f, 0.70f, 0.58f);
     glm::vec3 nightColor(0.05f, 0.07f, 0.15f);
 
     const int NUM_TREES = 24;
-    const float RADIUS = 5.5f;
+    const float RADIUS = 45.0f;
 
     for (int i = 0; i < NUM_TREES; ++i)
     {
         float angle = (glm::two_pi<float>() / NUM_TREES) * i;
 
         TreeInstance t;
+        float offsetX = 50.0f;
+        float offsetZ = 50.0f;
+
         t.position = glm::vec3(
-            islandCenter.x + cos(angle) * RADIUS,
+            islandCenter.x + cos(angle) * RADIUS + offsetX,
             0.0f,
-            islandCenter.z + sin(angle) * RADIUS
+            islandCenter.z + sin(angle) * RADIUS + offsetZ
         );
+
         t.rotationY = glm::degrees(-angle) + 90.0f;
-        t.scale = 0.6f;
+        t.scale = 5.0f;
 
         trees.push_back(t);
     }
@@ -210,11 +214,10 @@ void App::init()
     // AVIÓN
     airplanePos = glm::vec3(5.0f, 18.0f, 5.0f); // centro isla + altura
     airplaneYaw = 45.0f;
-    airplaneScale = 0.001f;
+    airplaneScale = 0.01f;
     airplaneYaw = 0.0f;   // dirección
     airplanePitch = -8.0f;  // leve ascenso
     airplaneRoll = 0.0f;    // estable
-    airplaneScale = 0.001f;
     airplanePrevPos = airplanePos;
 
 
@@ -316,7 +319,7 @@ void App::mainLoop()
         glm::mat4 waterModel =
             glm::scale(
                 glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.30f, 0.0f)),
-                glm::vec3(25.0f)
+                glm::vec3(100.0f)
             );
 
         materialWater.setMat4("model", waterModel);
@@ -380,6 +383,8 @@ void App::mainLoop()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, airplaneTexture);
 
+
+
         // Matriz modelo
         glm::mat4 modelPlane = glm::mat4(1.0f);
 
@@ -401,7 +406,7 @@ void App::mainLoop()
         // 2️⃣ Corrección FIJA del OBJ (NO se toca más)
         modelPlane = glm::rotate(
             modelPlane,
-            glm::radians(0.0f),
+            glm::radians(-90.0f),
             glm::vec3(1, 0, 0)
         );
 

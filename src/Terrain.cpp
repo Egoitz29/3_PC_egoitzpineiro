@@ -19,12 +19,12 @@ bool Terrain::BuildFromHeightmap(const Heightmap& hm)
     for (int z = 0; z < h; z++) {
         for (int x = 0; x < w; x++) {
 
-            float y = hm.heights[z * w + x] * 4.0f;
+            float y = hm.heights[z * w + x] * 3.0f;
 
             positions.push_back(glm::vec3(
-                x * 0.01f,
-                y * 0.02f,
-                z * 0.01f
+                x * 0.10f,
+                y * 0.15f,
+                z * 0.10f
             ));
 
             normals.push_back(glm::vec3(0, 1, 0));

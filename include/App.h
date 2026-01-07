@@ -52,6 +52,7 @@ public:
 
     TinyModel* airplaneModel;
 
+
     glm::vec3 airplanePos;
     float airplaneYaw;
     float airplaneScale;
@@ -62,9 +63,9 @@ public:
     glm::vec3 dayColor;
     glm::vec3 nightColor;
 
-    float airplaneRadius = 6.0f;      // radio del giro
-    float airplaneAngle = 45.0f;       // ángulo actual
-    float airplaneAngularSpeed = 45.0f; // grados por segundo
+    float airplaneRadius = 20.0f;      // radio del giro
+    float airplaneAngle = 0.0f;       // ángulo actual
+    float airplaneAngularSpeed = 25.0f; // grados por segundo
     // radio (igual que árboles)
 
 
